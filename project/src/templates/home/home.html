@@ -1,0 +1,92 @@
+{% extends 'common/base.html' %}
+
+
+{% block content %}
+    <div class="row">
+
+        <div class="jumbotron">
+            <div class="child_jumbotron ">
+                <h1 class="display-5">"어디로 배달해 드릴까요?"</h1>
+                <hr class="my-2">
+                <h4 class="display-5" id="user-addr" style="color:white;"></h4>
+                <hr class="my-2">
+                <p class="lead">
+                    <a class="btn btn-primary btn-lg" href="http://127.0.0.1:8000/category/3/restaurant/" role="button">주문 하기</a>
+                </p>
+            </div>
+        </div>
+
+        <div class="row col-lg-12" id="category-list"></div>
+
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/category/",
+                success: categoryList,
+                dataType: 'html',
+            })
+        });
+
+        function categoryList(data) {
+            data = JSON.parse(data);
+            var category = data.category_list;
+            var categoryList = '';
+            var i;
+
+            if (data.user_addr) {
+                $('#user-addr').append(data.user_addr);
+            }
+
+            for (i = 0; i < category.length; i++) {
+                if (category[i].pk !== 15) {
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/restaurant/">
+                            <div class="col-md-3">
+                                <div class="card border-primary mb-5" style="width: 14rem; height: 14rem">
+                                    <div style="background-image: url('../../media/` + category[i].img + `')" class="card-body">
+                                        <h4 class="card-title">` + category[i].name + `</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>`
+                } else {
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/menu/">
+                            <div class="col-md-3">
+                                <div class="card border-primary mb-5" style="width: 14rem; height: 14rem">
+                                    <div style="background-image: url('../../media/` + category[i].img + `')" class="card-body">
+                                        <h4 class="card-title">` + category[i].name + `</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>`
+                }
+            }
+            $('#category-list').append(categoryList)
+        }
+    </script>
+    <script>
+        function getCookie(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        var csrftoken = getCookie('csrftoken');
+    </script>
+{% endblock %}

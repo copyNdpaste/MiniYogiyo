@@ -1,0 +1,36 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="m-2 text-right">
+        {% if user.is_staff %}
+            <button class="btn btn-outline-danger" onclick="location.href='{% url 'yosigy:create' %}'">요식이 이벤트 작성</button>
+        {% endif %}
+    </div>
+    <div class="mb-5">
+        <ul class="nav nav-tabs nav-pills nav-fill">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" data-tab="all" href="#all">전체 메뉴</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="deadline" data-toggle="tab" data-tab="deadline" href="#order-by-deadline">마감임박 순</a>
+            </li>
+        </ul>
+    </div>
+    <div id="category-lists"></div>
+    <div id="myTabContent" class="tab-content ml-">
+        <div id="all" class="tab-pane fade show active col-sm-12 offset-sm-1">
+            <div class="row" id="yosigy-list"></div>
+        </div>
+        <div id="order-by-deadline" class="tab-pane fade col-sm-12 offset-sm-1">
+            <div class="row" id="deadline-list"></div>
+        </div>
+    </div>
+    <div id="paginator" class="text-center"></div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+<script src="/static/js/yosigy_list.js"></script>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    {% include 'coupon/navbar.html' %}
+    <div id="myTabContent" class="tab-content">
+        <p>
+            <form id="gift_coupon_form">
+              <fieldset>
+                <legend>Gift Card 선물하기</legend><br>
+                <div class="form-group">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                      <label class="btn btn-outline-primary active" id="email_check" onclick="send_email()">
+                        <input type="radio" autocomplete="off" > 이메일 전송
+                      </label>
+                      <label class="btn btn-outline-primary" id="phone_check" onclick="send_phone()">
+                        <input type="radio" autocomplete="off" > 휴대폰 전송
+                      </label>
+                    </div>
+                </div>
+                <div class="container form-group">
+                  <div class="row">
+                      <label class="col-form-label col-form-label-sm" for="inputSmall">
+                          받는 사람
+                      </label>
+                      <label class="col-form-label col-form-label-sm" id="receiver">
+                      </label>
+                  </div>
+                  <div class='row'>
+                      <input class="col-sm-3 form-control form-control-sm" name="receiver_name"
+                             type="text" placeholder="받는 사람 이름" maxlength="15" required>&nbsp;
+                      <input class="col-sm-5 form-control form-control-sm" name="receiver_email"
+                             type="text" placeholder="받는 사람 이메일" required maxlength="50" required>
+                      <input class="col-sm-5 form-control form-control-sm" name="receiver_phone"
+                             type="hidden" placeholder="받는 사람 번호" maxlength="15">
+                  </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label col-form-label-sm" for="exampleTextarea">메세지 입력</label>
+                    <textarea class="form-control" id="exampleTextarea" name="sender_msg" rows="3" maxlength="100">
+                    </textarea>
+                </div>
+                <div class="form-group">
+                    <label class="col-form-label col-form-label-sm" >금액 선택</label><br>
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                      <label name="price_lb" class="btn btn-outline-primary active">
+                        <input type="radio"  checked autocomplete="off" name="price" value="10000"> 1만원
+                      </label>
+                      <label name="price_lb" class="btn btn-outline-primary">
+                        <input type="radio" autocomplete="off" name="price" value="30000"> 3만원
+                      </label>
+                      <label name="price_lb" class="btn btn-outline-primary">
+                        <input type="radio" autocomplete="off" name="price" value="50000"> 5만원
+                      </label>
+                      <label name="price_lb" class="btn btn-outline-primary">
+                        <input type="radio" autocomplete="off" name="price" value="100000"> 10만원
+                      </label>
+                      <button id="other_price_btn" type="button" class="btn btn-outline-primary" onclick="set_other_price()"> 다른 금액 </button>
+                    </div>
+                </div>
+                <div id="price_modal"></div>
+                <button type="button" class="btn btn-primary btn-lg" id="send_coupon_btn"
+                        onclick="send_gift_coupon('{% url 'create_gift_coupon_api' %}')">선물 보내기</button>
+              </fieldset>
+            </form>
+        </p>
+    </div>
+{% endblock %}

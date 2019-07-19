@@ -1,0 +1,25 @@
+<br>
+<ul class="nav nav-tabs sticky-top">
+  <li class="nav-item">
+    <a class="nav-link {% if page == 'present' %}active{% endif %}"
+       href="{% url "coupon:gift_coupon" %}">Gift Card선물</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if page == 'register' %}active{% endif %}"
+      href="{% url "coupon:register_gift_coupon" %}">Gift Card 등록</a>
+  </li>
+  </li>
+  {% if user.is_authenticated %}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle {% if page == 'coupon_list' %}active{% endif %}" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">My Gift Card</a>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href='{% url 'coupon:available_coupon' %}'>이용가능 gift card</a>
+          <a class="dropdown-item" href='{% url 'coupon:received_coupon' %}'>받은 gift card</a>
+          <a class="dropdown-item" href='{% url 'coupon:sent_coupon' %}'>보낸 gift card</a>
+        </div>
+      </li>
+  {% endif %}
+</ul>
+<block script>
+    <script src="/static/js/coupon.js"></script>
+</block>

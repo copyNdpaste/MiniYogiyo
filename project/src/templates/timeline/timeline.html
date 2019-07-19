@@ -1,0 +1,159 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    <div id="best-selling" style="margin-top:10px;"></div>
+    <div id="for-img-modal"></div>
+
+    <ul class="nav nav-tabs nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#home">레스토랑 알림</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="menu-time-line" data-toggle="tab" href="#menu-alarm">메뉴 알림</a>
+        </li>
+    </ul>
+
+    <div id="myTabContent" class="tab-content">
+
+
+        <!---- 레스토랑 알림 부분 ------>
+        <div class="tab-pane fade show active" id="home">
+            <div class="container">
+                <div class="page-header mt-4">
+                    <h1 id="timeline">이벤트 & 공지사항</h1>
+                </div>
+                <ul class="timeline" id="restaurant_timeline">
+                </ul>
+            </div>
+            <div id="comment_modal_list"></div>
+        </div>
+
+        <!---- 메뉴 알림 부분 ------>
+        <div class="tab-pane fade" id="menu-alarm"></div>
+
+        <div class="tab-pane fade" id="menu-ranking">
+            <ul class="nav nav-tabs nav-pills nav-fill">
+                <li onclick="popularMenu('{% url 'timeline_api:popularmenu' sort_based_value='like' %}', 'like')"
+                    class=" nav-item ">
+                    <a class=" nav-link active" data-toggle="tab" href="#menu-like">좋아요 순 Top 10</a>
+                </li>
+                <li onclick="popularMenu('{% url 'timeline_api:popularmenu' sort_based_value='hit' %}', 'hit')"
+                    class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#menu-hit">조회수 순 Top 10</a>
+                </li>
+                <li onclick="popularMenu('{% url 'timeline_api:popularmenu' sort_based_value='score' %}', 'score')"
+                    class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#menu-score">메뉴 점수 순 Top 10</a>
+                </li>
+
+            </ul>
+            <div class="tab-content">
+                <div class="tab-pane show active" id="menu-like">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div id="order-history-user-name">
+                                </div>
+                                </hr>
+                                </br>
+                                <div id="popular-menu-main-like" class="main-box clearfix">
+                                    <div class="table-responsive">
+                                        <table class="table user-list">
+                                            <thead>
+                                            <tr>
+                                                <th class="text-center"><span>순위</span></th>
+                                                <th class="text-center"><span>좋아요 수</span></th>
+                                                <th class="text-center"><span>조회 수</span></th>
+                                                <th class="text-center"><span>메뉴 점수</span></th>
+                                                <th class="text-center"><span>레스토랑 명</span></th>
+                                                <th class="text-center"><span>메뉴 명</span></th>
+                                                <th class="text-center"><span>메뉴 가격</span></th>
+                                                <th class="text-center"><span>주문 하기</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="popular-menu-tbody-like"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="menu-hit">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div id="order-history-user-name">
+                                </div>
+                                </hr>
+                                </br>
+                                <div id="popular-menu-main-hit" class="main-box clearfix">
+                                    <div class="table-responsive">
+                                        <table class="table user-list">
+                                            <thead>
+                                            <tr>
+                                                <th class="text-center"><span>순위</span></th>
+                                                <th class="text-center"><span>좋아요 수</span></th>
+                                                <th class="text-center"><span>조회 수</span></th>
+                                                <th class="text-center"><span>메뉴 점수</span></th>
+                                                <th class="text-center"><span>레스토랑 명</span></th>
+                                                <th class="text-center"><span>메뉴 명</span></th>
+                                                <th class="text-center"><span>메뉴 가격</span></th>
+                                                <th class="text-center"><span>주문 하기</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="popular-menu-tbody-hit"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="tab-pane fade" id="menu-score">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div id="order-history-user-name">
+                                </div>
+                                </hr>
+                                </br>
+                                <div id="popular-menu-main-score" class="main-box clearfix">
+                                    <div class="table-responsive">
+                                        <table class="table user-list">
+                                            <thead>
+                                            <tr>
+                                                <th class="text-center"><span>순위</span></th>
+                                                <th class="text-center"><span>좋아요 수</span></th>
+                                                <th class="text-center"><span>조회 수</span></th>
+                                                <th class="text-center"><span>메뉴 점수</span></th>
+                                                <th class="text-center"><span>레스토랑 명</span></th>
+                                                <th class="text-center"><span>메뉴 명</span></th>
+                                                <th class="text-center"><span>메뉴 가격</span></th>
+                                                <th class="text-center"><span>주문 하기</span></th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="popular-menu-tbody-score"></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--- tab content---->
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="/static/js/best-selling-menu-on-time.js"></script>
+    <script src="/static/js/timeline.js"></script>
+    <script>get_restaurant_timeline_list()</script>
+    <script src="/static/js/menu-time-line.js"></script>
+    <script src="/static/js/popular.js"></script>
+{% endblock %}

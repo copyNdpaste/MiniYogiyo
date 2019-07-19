@@ -1,0 +1,242 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    <div id="user-addr"></div>
+    <div id="category-lists"></div>
+    <div id="menu-list" style="margin: 50px auto;"></div>
+    <div id="exclude-menu" class="alert alert-dismissible alert-secondary"></div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        var categoryId;
+        var menus;
+        var flagForTop10 = false;
+        var Category = {
+            weather : 15
+        };
+        var Quantity = {
+            menuQuantityStandard : 10
+        };
+
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/category/",
+                success: categoryList,
+                dataType: "json",
+            });
+            $.ajax({
+                type: "GET",
+                url: "/api/category/" + {{ category_id }} +
+                    "/menu/",
+                success: menuList,
+                error: menuListError,
+                dataType: "json",
+            });
+        });
+
+        function categoryList(data){
+            var category = JSON.parse(JSON.stringify(data.category_list));
+            var html;
+            var categoryList = '';
+            var i;
+
+            category.sort(function(a,b){
+                return a.pk > b.pk ? 1 : a.pk < b.pk ? -1 : 0
+            });
+
+            if (data.user_addr) {
+                var userAddr = JSON.parse(JSON.stringify(data.user_addr));
+                var addr =
+                    `<ol class="breadcrumb" style="margin-top:20px;">
+                        <li class="breadcrumb-item" style="color:deeppink; margin:auto;">` +
+                            userAddr +
+                        `</li>
+                    </ol>`;
+                $('#user-addr').append(addr);
+            }
+
+            for(i=0; i<category.length; i++){
+                if(category[i].pk !== Category.weather){
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/restaurant/">
+                            <button class="btn btn-outline-primary" style="margin:10px;">` +
+                                category[i].name +
+                            `</button>
+                        </a>`;
+                }else{
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/menu/">
+                            <button class="btn btn-outline-primary" style="margin:10px;">` +
+                                category[i].name +
+                            `</button>
+                        </a>`
+                }
+            }
+            html = categoryList;
+            $('#category-lists').html(html)
+        }
+
+        function getStrSkyInfo(sky) {
+            var skyInfo = ['맑은 날', '구름 조금 있는 날', '구름 많은 날', '흐린 날'];
+            var skyIndex = sky - 1;
+            return skyInfo[skyIndex];
+        }
+
+        function menuList(data) {
+            var html = '';
+            categoryId = data.category_id;
+            menus = data.menu_list;
+            var skyInfo = getStrSkyInfo(data.sky_info);
+            var excludeMenu = data.exclude_menu;
+            var excludeMenuQuantity = data.exclude_menu_quantity;
+            var startIndexForTop5 = 0;
+            var endIndexForTop5 = 5;
+            var menusCount = menus.length;
+            var top5Menus = menus.slice(startIndexForTop5, endIndexForTop5);
+            var standardForShowingMoreMenu = 5;
+            var numberForRanking = 1;
+
+            html +=
+                `<div class="accordion" id="menu-list">
+                    <div class="card">
+                        <div class="card-header" id="headingOne">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link" type="button">` +
+                                    skyInfo +
+                                    `엔 이 메뉴가 딱이요 ! !
+                                </button>
+                            </h2>
+                        </div>
+                        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">`;
+                    for (var menu of top5Menus) {
+                        html +=
+                            `<a href="/category/` + categoryId + `/restaurant/` + menu.restaurant + `/menu/` + menu.id + `/">
+                                <div class="card-body" style="overflow:auto; padding:20px 60px; border-bottom:1px solid lightgray">
+                                    <div style="float:left; margin:20px auto;">`;
+                                    if (menu.quantity >= Quantity.menuQuantityStandard) {
+                                        html +=
+                                        menus.indexOf(menu) + numberForRanking + `등` +
+                                        `<div>무려 ` +
+                                            menu.quantity +`개나 팔렸어요
+                                        </div>`
+                                    } else {
+                                        html +=
+                                        menus.indexOf(menu) + numberForRanking + `등` +
+                                        `<div>총 ` +
+                                            menu.quantity +`개가 팔렸어요
+                                        </div>`
+                                    }
+                                        html +=
+                                        `<div>` +
+                                            menu.menu +
+                                        `</div>
+                                        <div style="color:gray">` +
+                                            menu.detail +
+                                        `</div>
+                                        <div>` +
+                                            menu.price +
+                                        `원</div>
+                                    </div>
+                                    <div style="float:right; margin:20px auto;">
+                                        <img src="/media/` + menu.img + `" width="100px" height="100px" >
+                                    </div>
+                                </div>
+                            </a>`;
+                    }
+                    html +=
+                        `</div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="mb-0">
+                                <button class="btn btn-link" id="for-top-10" type="button">`;
+                                if (menusCount > standardForShowingMoreMenu) {
+                                    html += `선방한 메뉴 더보기`;
+                                }
+                                html +=
+                                `</button>
+                            </h2>
+                        </div>
+                    </div>
+                </div>`;
+            $('#menu-list').html(
+                html
+            );
+            html = `<b>Steady Seller</b><br>
+                    날씨와 관계 없이 잘 팔린 메뉴는 제외되었습니다. <br>`;
+            for(menu in excludeMenu) {
+                html +=
+                    excludeMenuQuantity[menu] + `개가 팔린 ` + menu + `<br>`;
+            }
+            $('#exclude-menu').append(
+                html
+            )
+        }
+
+        function menuListError(data) {
+            $('#menu-list').html(
+                `<div class="alert alert-danger" role="alert">` +
+                data.status + ` ` + data.statusText +
+                `<br>` +
+                data.responseJSON.message +
+                `</div>`
+            );
+        }
+
+        $(document).on('click', '#for-top-10', function() {
+            if (flagForTop10 === false) {
+                flagForTop10 = true;
+                var html = '';
+                var startIndexForMoreMenu = 5;
+                menus = menus.slice(startIndexForMoreMenu);
+                var comment = '선방한 메뉴';
+                var numberForRanking = 6;
+                html +=
+                    `<div class="card">`;
+                for (var menu of menus) {
+                    html +=
+                        `<a href="/category/` + categoryId + `/restaurant/` + menu.restaurant + `/menu/` + menu.id + `/">
+                            <div class="card-body" style="overflow:auto; padding:20px 60px; border-bottom:1px solid lightgray">
+                                <div style="float:left; margin:20px auto;">`;
+                    if (menu.quantity >= Quantity.menuQuantityStandard) {
+                        html +=
+                                    menus.indexOf(menu) + numberForRanking + `등` +
+                                    `<div>무려 ` +
+                                        menu.quantity + `개나 팔렸어요
+                                    </div>`
+                    } else {
+                        html +=
+                                    menus.indexOf(menu) + numberForRanking + `등` +
+                                    `<div>총 ` +
+                                        menu.quantity + `개가 팔렸어요
+                                    </div>`
+                    }
+                    html +=
+                                    `<div>` +
+                                        menu.menu +
+                                    `</div>
+                                    <div style="color:gray">` +
+                                        menu.detail +
+                                    `</div>
+                                    <div>` +
+                                        menu.price +
+                                    `원</div>
+                                </div>
+                                <div style="float:right; margin:20px auto;">
+                                    <img src="/media/` + menu.img + `" width="100px" height="100px" >
+                                </div>
+                            </div>
+                        </a>`
+                }
+                html +=
+                    `</div>`;
+                $('#menu-list').append(html);
+                $('#for-top-10').html(
+                    comment
+                );
+            }
+        });
+    </script>
+{% endblock %}

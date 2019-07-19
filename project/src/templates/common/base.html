@@ -1,0 +1,50 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>미니 요기요</title>
+    {% include 'common/css.html' %}
+    {% block base_head %} {% endblock %}
+</head>
+
+<body>
+    <div id="top">
+        {% include 'common/navbar.html' %}
+    </div>
+    <div class='container'>
+        {% block content %} {% endblock content %}
+    </div>
+
+
+    {% include 'common/js.html' %}
+    {% block javascript %} {% endblock %}
+    {% if user.is_authenticated %}
+        <script>
+            $(document).ready(function () {
+                $.ajax({
+                    url: '{% url "cart_api:cart_item_quantity_api" %}',
+                    method: "GET",
+                    success: function (data) {
+                        $("#order-menu-count").empty();
+                        $("#order-menu-count").append(
+                            `<span class="badge badge-light">` + data.total_quantity + `</span>`);
+
+                    },
+                    error: function (data) {
+                        $("#order-menu-count").empty();
+                        $("#order-menu-count").append(`<span class="badge badge-light">` + data.total_quantity + `</span>`);
+                    }
+                })
+            });
+        </script>
+    {% endif %}
+    {% include 'common/footer.html' %}
+</body>
+
+
+</html>

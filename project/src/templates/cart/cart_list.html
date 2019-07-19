@@ -1,0 +1,174 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block base_head %}
+
+{% endblock %}
+
+{% block content %}
+    <div id="main">
+        <h1><i class="fas fa-shopping-cart"></i> {{ request.user }} 님의 주문표 </h1>
+        <hr>
+        <br>
+        <div id=restaurant-info>
+
+        </div>
+        <table id="cart" class="table table-hover table-condensed">
+            <thead>
+            <tr>
+                <th class="text-space">&nbsp;&nbsp;메뉴</th>
+                <th style="width:10%" class="text-space">&nbsp;&nbsp;가격</t>
+                <th style="width:13%" class="text-center">수량</th>
+                <th style="width:15%" class="text-center">
+                    가격 x 수량
+                </th>
+                <th style="width:13%" class="text-center">삭제</th>
+            </tr>
+            </thead>
+
+
+            <tbody id="menu-table"></tbody>
+
+            <tfoot id="cart-info">
+
+            </tfoot>
+        </table>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '{% url "cart_api:cart_list_create_api" %}',
+                method: "GET",
+                success: function (data) {
+                    if (data.message) {
+                        $("#main").append(
+                            `<div style="text-align:center;">
+                                <h3>` + data.message + `</h3>
+                            </div>`
+                        )
+                    } else {
+                        var cart_id = data.cart.cart_id
+
+                        //레스토랑 정보
+                        var restaurant_name = data.restaurant.name
+                        var min_order_price = data.restaurant.min_order_price
+                        $('#restaurant-info').append(
+                            `<h3>` + restaurant_name + "   " + `<button onclick="deleteCart(` + "'" + data.cart.delete_url + "'" + `)" class="badge badge-primary"> <i class="fas fa-trash-alt"></i> </a></h3>
+                        <span class="badge badge-primary">최소 주문 금액 : ` + min_order_price + `</span>
+                        <input type="hidden" id="menu-count" value=` + data.restaurant.menu.length + `>
+                        <br>
+                        <br>`
+                        )
+                        //메뉴 정보
+                        $.each(data.restaurant.menu, function (key, value) {
+                            var menu_id = value.id
+                            var menu_name = value.name;
+                            var menu_description = value.description;
+                            var menu_price = value.price;
+                            var menu_quantity = value.quantity;
+                            var menu_subtotal = value.subtotal;
+                            var menu_img = value.img;
+                            $("#menu-table").append(
+                                `<tr id="menu-row-` + menu_id + `">
+                                    <td data-th="메뉴">
+                                        <div class="row">
+                                            <div class="col-sm-3 hidden-xs">
+                                                
+                                                <img src=` + menu_img + ` alt="..." width=100 height=100
+                                                    class="img-responsive" />
+                                                
+                                            </div>
+                                            <div class="col-sm-7">
+                                                <input type="hidden" id="menu-` + menu_id + `" value=` + menu_id + `>
+                                                <h4 class="nomargin">` + menu_name + `</h4>
+                                                <p>` + menu_description + `</p>
+                                                <div>
+                                                    <div id="tastes-` + menu_id + `" class="row">
+                                                        
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td id="menu-price-` + menu_id + `" data-th="Price" withd="10%">￦ ` + menu_price + `</td>
+                                        <td id="menu-quantity-` + menu_id + `" data-th="Quantity" class="text-center">` + menu_quantity + `
+                                            <div>
+                                                <div class="row center">
+                                                    <button onclick="upQuantity(` + menu_id + `)" id="quantity-plus-button" class="badge badge-success"> 
+                                                        <i class="fas fa-plus"></i>
+                                                    </button>
+                                                        &nbsp;&nbsp;
+                                                    <button onclick="downQuantity(` + menu_id + `)" id="quantity-minus-button" class="badge badge-success"> 
+                                                        <i class="fas fa-minus"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    
+                                        
+                                    <td id="menu-subtotal-` + menu_id + `" data-th="Subtotal" class="text-center">
+                                        ￦ ` + menu_subtotal + `
+                                    </td>
+                                    <td id="menu-delete-` + menu_id + `" class="text-center" class="actions" data-th="">
+                                        <button onclick="deleteCartItem(` + "'" + cart_id + "'" + `,` + menu_id + ',' + menu_id + `)" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </td>
+                                </tr>`
+                            )
+
+                            $.each(value.taste, function (key, value) {
+                                var taste = value
+                                $("#tastes-" + menu_id).append(
+                                    `<span class="badge badge-pill badge-dark">` + taste + `</span>&nbsp;`
+                                )
+                            })
+
+                        })
+                    }
+                    // 주문표 관련 정보
+                    var home_url = data.cart.home_url;
+                    var total_price = data.cart.total_price;
+                    var total_quantity = data.cart.total_quantity;
+                    var menus = data.restaurant.menu
+
+
+                    menu_list = []
+                    data.restaurant.menu.map((data) => {
+                        menu_list.push(data.id)
+                    })
+
+                    $("#cart-info").append(
+                        `<tr>
+                        <td>
+                            <a href=` + home_url + ` class="btn btn-warning"><i class="fa fa-angle-left"></i> 홈으로 이동</a>
+                        </td>
+                        <td colspan="1" class="hidden-xs"></td>
+                        <td class="hidden-xs text-center">
+                            <p id="total-quantity" class="total">총 메뉴 수: ` + total_quantity + `</p>
+                        </td>
+                        <td class="hidden-xs text-center">
+                            <p id="total-price" class="total">총 가격: ￦ ` + total_price + `</p>
+                        </td>
+                        <td>
+                            <button onclick= "updateQuantity(` + "'" + encodeURIComponent(menu_list) + "'" + "," + "'" + cart_id + "'" + `,` + "1" + `)" class="btn btn-success btn-block">저장 하기 <i class="fa fa-angle-right"></i></a>
+                            <button onclick= "updateQuantity(` + "'" + encodeURIComponent(menu_list) + "'" + "," + "'" + cart_id + "'" + `,` + "2" + `)" class="btn btn-warning btn-block">주문 하기 <i class="fa fa-angle-right"></i></a>
+                        </td>
+                        
+                    </tr>`
+                    )
+                },
+                error: function (data) {
+                    $("#main").empty()
+                    $("#main").append(
+                        `<h1>잘못된 접근 입니다.</h1>`
+                    )
+                }
+            })
+        });
+    </script>
+{% endblock %}

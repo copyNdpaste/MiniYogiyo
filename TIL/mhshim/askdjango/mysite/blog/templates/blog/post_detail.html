@@ -1,0 +1,45 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+    <div>
+        글 번호 {{ post.id }}
+        {% if user.is_authenticated %}
+            <button><a href="{% url 'post_edit' pk=post.pk %}">글 수정</a></button>
+            <button><a href="{% url 'post_remove' pk=post.pk %}" onclick="return confirm('삭제하시겠습니까?')">글 삭제</a></button>
+            <button><a href="{% url 'post_list' %}">목록</a></button>
+        {% endif %}
+    </div>
+    <div>
+        제목 {{ post.title }}
+    </div>
+    <div>
+        본문 {{ post.text }}
+    </div>
+    <div>
+        생성일 {{ post.created_date }}
+    </div>
+    {% if post.published_date %}
+        <div>
+            게시일 {{ post.published_date }}
+        </div>
+    {% else %}
+        <a href="{% url 'post_publish' pk=post.pk %}">Publish</a>
+    {% endif %}
+    <hr>
+    <a href="{% url 'add_comment_to_post' pk=post.pk %}">댓글 추가</a>
+    {% for comment in post.comments.all %}
+        {% if user.is_authenticated or comment.approved_comment %}
+            <div>
+                <div>{{ comment.created_date }}</div>
+                {% if not comment.approved_comment %}
+                    <a href="{% url 'comment_remove' pk=comment.pk %}" onclick="return confirm('삭제하시겠습니까?');">삭제</a>
+                    <a href="{% url 'comment_approve' pk=comment.pk %}">승인</a>
+                {% endif %}
+                {{ comment.author }}
+                <p>{{ comment.text | linebreaks }}</p>
+            </div>
+        {% endif %}
+    {% empty %}
+        <p>No comments here yet</p>
+    {% endfor %}
+{% endblock %}

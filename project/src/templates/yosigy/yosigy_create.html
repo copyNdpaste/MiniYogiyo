@@ -1,0 +1,76 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-md-10 m-5">
+        <h2>요식이 식권 이벤트 생성</h2>
+        <hr>
+        <form id="yosigy_create_form">
+            <div id="gp-create-form">
+                <div class="form-group">
+
+                    <div class="m-3 mb-5">
+                        <label for="exampleSelect1">
+
+                            <h3 class="m-2">식당을 선택하세요.</h3>
+
+                        </label>
+                        <select class="form-control form-control-lg" id="restaurant_select" name="restaurant">
+                        </select>
+                    </div>
+                    <div class="m-3 mb-5">
+                        <label for="exampleSelect1">
+
+                            <h3 class="m-2">한줄 공지사항</h3>
+
+                        </label>
+                        <input type="text" class="form-control form-control-lg" name="notice"
+                            aria-describedby="emailHelp" placeholder="한줄 공지사항을 적으세요.">
+                    </div>
+
+                    <div class="m-3 mb-5">
+                        <label for="exampleSelect1">
+
+                            <h3 class="m-2">메뉴를 선택하세요.</h3>
+
+                        </label>
+                            <label for="exampleSelect2">*세트메뉴에 포함할 메뉴를 선택하세요</label>
+                            <div id="menu_select_div">
+                                <select class="form-control form-control-lg" id="menu_select">
+                                </select>
+                            </div>
+                    </div>
+
+                    <div class="m-3 mb-5">
+                        <label for="exampleSelect1">
+
+                            <h3 class="m-2">최소 구매가격</h3>
+
+                        </label>
+                            <input type="number" min="0" step="100" class="form-control form-control-lg"
+                                   id="min_price" name="min_price" aria-describedby="emailHelp" placeholder="구매가능한 최소금액을 적으세요.">
+                    </div>
+
+                    <div class="m-3 mb-5" id="menu_list">
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div id="gp-create-button">
+            <button class="btn btn-primary btn-lg btn-block"
+                    onclick="create_yosigy_event('{% url 'yosigy_api:yosigy_create_api' %}')">
+                <h3>생성하기</h3>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="/static/js/yosigy_create.js"></script>
+    <script>
+        get_available_yosigy_restaurants('{% url 'yosigy_api:yosigy_create_api' %}')
+    </script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'blog/layout.html' %}
+
+{% block content %}
+    <h2>블로그</h2>
+    <form action="" method="GET">
+        <input type="text" name="search" value="{% if search %}{{ search }}{% endif %}">
+        <input type="submit" value="검색">
+    </form>
+    <ul>
+        {% for post in post_list %}
+            <li>
+            {{ post.id }}
+            <a href="{% url 'blog:post_detail' post.id %}">{{ post.title }}</a>
+            <small>by {{ post.title }}</small>
+            <small>at {{ post.updated_date }}</small>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<div class="post">
+    {% if post.published_date %}
+    <div class="date">
+        {{ post.published_date }}
+    </div>
+    {% else %}
+    <a class="btn btn-default" href="{% url 'blog:post_publish' post_id=post.id %}">Publish</a>
+    {% endif %}
+    {% if user.is_authenticated %}
+    <a class="btn btn-default" href="{% url 'blog:post_edit' post_id=post.id %}"><span
+            class="glyphicon glyphicon-pencil"></span></a>
+    <a class="btn btn-default" onclick="return confirm('Are you sure?')"
+        href="{% url 'blog:post_remove' post_id=post.id %}"><span class="glyphicon glyphicon-remove"></span></a>
+    {% endif %}
+
+    <h1>{{ post.title }}</h1>
+    <p>{{ post.text|linebreaksbr }}</p>
+</div>
+
+<hr>
+<a class="btn btn-default" href="{% url 'blog:comment_new' post_id=post.id %}">Add comment</a>
+{% for comment in post.comments.all %}
+{% if user.is_authenticated or comment.approved_comment %}
+<div class="comment">
+    <div class="date">
+        {{ comment.created_date }}
+        {% if not comment.approved_comment %}
+        <a class="btn btn-default" onclick="return confirm('Are you sure?')"
+            href="{% url 'blog:comment_remove' comment_id=comment.id %}"><span
+                class="glyphicon glyphicon-remove"></span></a>
+        <a class="btn btn-default" href="{% url 'blog:comment_approve' comment_id=comment.id %}"><span
+                class="glyphicon glyphicon-ok"></span></a>
+        {% endif %}
+    </div>
+    <strong>{{ comment.author }}</strong>
+    <p>{{ comment.text|linebreaks }}</p>
+</div>
+{% endif %}
+{% empty %}
+<p>No comments here yet :(</p>
+{% endfor %}
+
+{% endblock %}

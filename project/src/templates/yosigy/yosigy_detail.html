@@ -1,0 +1,197 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    <div id="yosigy-menu-main" class="container ">
+
+
+        <div id="yosigy-notice" class="row no-flex align-items-center justify-content-center"></div>
+
+        <div id="yosigy-detail-restaurant" class="row">
+
+        </div>
+
+        <div class="m-3 bordering">
+            <ul class="nav nav-tabs nav-pills nav-fill">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#all">사장님 추천 식권 세트</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="menu-time-line" data-toggle="tab" href="#deadline">내가 만드는 식권 세트</a>
+                </li>
+
+            </ul>
+        </div>
+
+
+        <div id="myTabContent" class="tab-content">
+            <div id="all" class="tab-pane fade show active col-sm-12">
+
+                <div class="container">
+                    <div class="col-md-12 offset-md-1">
+                        <div id="yosigy-detail-owner-menu-list" class="row"></div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div id="deadline" class="tab-pane fade">
+                <div class="container">
+                    <div class="col-md-12 offset-md-1">
+                        <div id="yosigy-detail-custom-menu-list" class="row">
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            let url = window.location.href;
+            const yosigy_id = url.split('/', 5).slice(-1)[0]
+
+            $.ajax({
+                url: '/api/yosigy/detail/' + yosigy_id + '/',
+                method: "GET",
+                success: function (data) {
+
+                    $("#yosigy-notice").append(
+                        `<span class=" badge badge-pill badge-warning m-3">
+                            <h4>공지사항</h4>
+                        </span>
+                            <span id style="font-size: 20px; font-weight: bold">` + data.notice + `</span>
+                        `
+                    )
+
+
+                    $("#yosigy-detail-restaurant").append(
+                        `<div class="m-3">
+                            <img width="100" height="100"
+                                src="` + data.restaurant.img + `"
+                                alt="">
+                        </div>
+                        <div>
+                            <div class="mt-5">
+                                <h3>` + data.restaurant.title + `</h3>
+                            </div>
+                            <div>
+                                <span class="badge badge-danger">
+                                    <h5>요식이 최소 구매가격: ` + data.restaurant.yosigy_min_order_price + `원</h5>
+                                </span>
+                            </div>
+                        </div>
+                        `
+                    )
+
+                    if (data.owner_set_menu_list.length === 0) {
+                        $("#yosigy-detail-owner-menu-list").empty()
+                        $("#yosigy-detail-owner-menu-list").append("<h3>요식이 메뉴가 없습니다. 메뉴를 추가해주세요.</h3>")
+
+                    }
+
+                    if (data.user_custom_menu_list.length === 0) {
+                        $("#yosigy-detail-custom-menu-list").empty()
+                        $("#yosigy-detail-custom-menu-list").append("<h3>요식이 메뉴가 없습니다. 메뉴를 추가해주세요.</h3>")
+                    }
+
+
+                    $.each(data.owner_set_menu_list, function (key, value) {
+                        $("#yosigy-detail-owner-menu-list").append(
+                            `<div class="card col-md-3 padding-zero m-3">
+                                <img class="card-img-top"
+                                    src="` + "http://127.0.0.1:8000/media/" + value.menu__img + `"
+                                    alt="Card image cap">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">` + value.menu__name + `</h5>
+                                    <p class="card-text">` + value.menu__detail + `</p>
+    
+                                </div>
+    
+    
+                                <div class="card-footer col-sm text-center">
+                                    <div class="text-center">
+                                        <div>
+                                            <span class="badge badge-success mr-2">
+    
+                                                <h5><strike> ￦` + value.menu__price + `</strike> -> ￦ ` + value.discounted_price + `</h5>
+    
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <hr>
+    
+                                    
+                                    <button onclick=append_yosigy_menu(` + "'" + value.id + "'" + `,` + "'" + value.menu__img + "'" + `,` + "'" + value.menu__id + "'" + `,` + "'" + encodeURIComponent(value.menu__name) + "'" + `,` + "'" + "1" + "'" + `,` + "'" + value.discounted_price + "'" + `) class="btn btn-primary btn-block">
+                                        ` + value.menu__name + ` 담기
+                                    </button>
+                                </div>
+                            </div>
+                            `
+                        )
+                    })
+
+                    $.each(data.user_custom_menu_list, function (key, value) {
+                        $("#yosigy-detail-custom-menu-list").append(
+                            `<div class="card col-md-3 padding-zero m-3">
+                                <img class="card-img-top"
+                                    src="` + "http://127.0.0.1:8000/media/" + value.menu__img + `"
+                                    alt="Card image cap">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">` + value.menu__name + `</h5>
+                                    <p class="card-text">` + value.menu__detail + `</p>
+    
+                                </div>
+    
+    
+                                <div class="card-footer col-sm text-center">
+                                    <div class="text-center">
+                                        <div>
+                                            <span class="badge badge-success mr-2">
+    
+                                                <h5><strike> ￦` + value.menu__price + `</strike> -> ￦ ` + value.discounted_price + `</h5>
+    
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <hr>           
+                                    <button onclick="append_yosigy_menu(` + "'" + value.id + "'" + `,` + "'" + value.menu__img + "'" + `,` + "'" + value.menu__id + "'" + `,` + "'" + encodeURIComponent(value.menu__name) + "'" + `,` + "'" + "1" + "'" + `,` + "'" + value.discounted_price + "'" + `)" class="btn btn-primary btn-block">
+                                        ` + value.menu__name + ` 담기
+                                    </button>
+
+                                     <div id="hoho">
+                                    
+                                     </div>
+                                </div>
+                            </div>
+                            `
+                        )
+                    })
+
+                    $("#yosigy-menu-main").append(
+                        `<div class=m-4>
+                            <button onclick="create_yosigy_ticket(` + data.restaurant.id + `)" class="btn btn-primary btn-block">결제하기</button>
+                        </div>
+                        `
+                    )
+
+                },
+                error: function (data) {
+                    $("#yosigy-notice").empty()
+                    $("#yosigy-detail-owner-menu-list").append("<h3>요식이 메뉴가 없습니다. 메뉴를 추가해주세요.</h3>")
+                    $("#yosigy-detail-custom-menu-list").append("<h3>요식이 메뉴가 없습니다. 메뉴를 추가해주세요.</h3>")
+
+                    let errorObj = JSON.parse(String(data.responseText))
+                    alert(errorObj.message)
+                    window.location.href = 'http://127.0.0.1:8000/home/'
+
+                }
+            })
+        });
+    </script>
+{% endblock %}

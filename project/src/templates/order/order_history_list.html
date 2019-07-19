@@ -1,0 +1,380 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block base_head %}
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/owl.carousel.min.css">
+<link rel="stylesheet" href="/static/css/owl.theme.default.min.css">
+{% endblock %}
+
+{% block content %}
+    <div class="m-3"></div>
+    <ul class="nav nav-tabs nav-pills nav-fill">
+        <li class="nav-item">
+            <a class="nav-link active" id="order_history" data-toggle="tab" href="#order-history">주문내역</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#ticket-payment"
+               onclick="get_ticket_payment_history_tab('{% url 'yosigy_api:yosigy_payment_list_api' %}')">티켓 구매내역</a>
+        </li>
+    </ul>
+    <div class="m-3"></div>
+    <div id="myTabContent" class="tab-content">
+
+        <!-- 주문내역 -->
+        <div class="tab-pane fade show active" id="order-history">
+            <!-- Modal -->
+            <div id="modal_list"></div>
+            <!-- End Modal -->
+
+            <div class="container">
+                <div class="row">
+
+                    <div id="order-history-user-name">
+                    </div>
+                    </hr>
+                    </br>
+                    <div id="order-history-main" class="main-box clearfix">
+                        <div class="table-responsive">
+                            <table class="table user-list">
+                                <thead>
+                                <tr>
+                                    <th><span>주문 식당</span></th>
+                                    <th><span>주문 일시</span></th>
+                                    <th><span>주문상태</span></th>
+                                    <th><span>배달여부</span></th>
+                                    <th><span>총 주문 가격</span></th>
+                                    <th><span>결제 종류</span></th>
+                                    <th class="text-center"><span>상세 주문 내역</span></th>
+                                </tr>
+                                </thead>
+                                <tbody id="order-history-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 티켓 구매내역 -->
+        <div class="tab-pane fade" id="ticket-payment">
+            <!-- Modal -->
+            <div id="payment_modal_list"></div>
+            <!-- End Modal -->
+
+            <div id="recently-purchased"></div>
+            <div id="yosigy-ticket-slider"></div>
+
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div id="ticket_payment_headline">
+                        </div>
+                        </hr>
+                        </br>
+                        <div id="" class="main-box clearfix">
+                            <div class="table-responsive">
+                                <table class="table user-list">
+                                    <thead>
+                                    <tr>
+                                        <th><span>구매 식당</span></th>
+                                        <th><span>구매 일시</span></th>
+                                        <th><span>티켓 수량</span></th>
+                                        <th><span>총 구매 가격</span></th>
+                                        <th class="text-center"><span>상세 구매 내역</span></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody id="ticket_payment_tbody">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascript %}
+    <script src="/static/js/payment_history.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '{% url "order_api:order_history_list" %}',
+                method: "GET",
+                success: function (data) {
+                    //상단 주문자 정보 부분
+                    var LOCALHOST_MEDIA_URL = "http://127.0.0.1:8000/media/"
+                    var username = data.user;
+                    var cart_id = data.user.cart_id
+
+                    $("#order-history-user-name").append(
+                        `<h1>` + username + `님의 주문 내역 입니다.</h1>`
+                    )
+
+                    $.each(data.order, function (key, value) {
+                        var id = value.id;
+                        var index = key;
+                        var restaurant_img = LOCALHOST_MEDIA_URL + value.restaurant_img;
+                        var restaurant_title = value.restaurant_title;
+                        var created_time = value.created_time;
+                        var delivery_status = value.delivery_status;
+                        var status = value.status
+                        var payment_way = value.payment_status;
+                        var total_price = value.total_price;
+                        var user_address = value.user_address;
+                        var user_address_detail = value.user_address_detail;
+                        var phone_num = value.phone_num;
+                        var min_order_price = value.min_order_price;
+                        var delivery_charge = value.delivery_charge;
+                        var cart_id = value.cart_id;
+                        var is_yosigy_order = value.is_yosigy_order;
+                        var yosigy_menu_name = value.yosigy_ticket__menu__name;
+                        var yosigy_menu_img = value.yosigy_ticket__menu__img;
+                        var yosigy_menu_detail = value.yosigy_ticket__menu__detail;
+                        var html = '';
+
+                        $("#modal_list").append(
+                            `<div id="myModal` + "-" + index + `" class="modal fade bd-example-modal-xl" tabindex="-1" role="dialog"
+                            aria-labelledby="myExtraLargeModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="exampleModalLongTitle">주문 상세 내역</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="container">
+                                            <div class='col-10 offset-1'>
+                                                <h4 class="mb-3">1. 주문자 정보</h4>
+                                                <hr>
+                                                <div class="row"></div>
+                                                <div class="mb-3">
+                                                    <label for="address">
+                                                        <h5>주소</h5>
+                                                    </label>
+                                                    <div id="address-main">
+                                                        <input type="text" value="` + user_address + `" 
+                                                        class="form-control" readonly>
+                                                        
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="address2">
+                                                        <h5>상세 주소</h5>
+                                                    </label>
+                                                    <div id="address-detail">
+                                                            <input type="text" value="` + user_address_detail + `" 
+                                                        class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="address2">
+                                                        <h5>전화번호</h5>
+                                                    </label>
+                                                    <div id="user-phone">
+
+                                                            <input type="text" value="` + phone_num + `" 
+                                                        class="form-control" readonly>
+                                                    </div>
+                                                </div>
+                                                <hr class="mb-4">
+                                                <h4 class="mb-3">2. 결제 정보</h4>
+
+                                                <div class="d-block my-3">
+                                                    <h5 id="payment-way-str` + index + `"></h5>
+                                                </div>
+                                                <div class="row">
+                                                    <div id="payment-way-` + index + `" class="btn-group btn-group-toggle" data-toggle="buttons">
+                                                    </div>
+                                                </div>
+                                                <hr class="mb-4">
+                                                <div class="card border-danger mb-3">
+                                                    <div class=" card-header">
+                                                        <h4>주의사항</h4>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <p class="card-text">* 주문 후 음식 조리가 시작되면 주문을 취소할 수 없습니다.</p>
+                                                        <p class="card-text">* 주문 접수 시 배달 소요시간이 안내됩니다.</p>
+                                                    </div>
+                                                </div>
+                                                <br>
+                                                <div id="cart-item-table">
+                                                    <h4 class="mb-3">3. 주문한 메뉴 정보</h4>
+                                                    <hr>
+                                                    <h5>` + restaurant_title + `</h5>
+                                                    <span class="badge badge-primary" id="min-order-price` + index + `"></span>
+                                                    <hr>
+                                                </div>
+                                                <ul id="cart-item-list` + "-" + index + `" class="list-group mb-3"> </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div id="reorder` + index + `"></div>
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`
+                        );
+                        html = '';
+                        if (is_yosigy_order === null) {
+                            html +=
+                                `<label id="cash" class="btn btn-outline-primary active">
+                            <i class="fas fa-won-sign"></i>
+                            <input type="radio"> 현금 결제
+                        </label>`;
+                            $('#min-order-price' + index).append(
+                                `최소 주문 금액 :￦ ` + min_order_price + `원`
+                            );
+                            $('#reorder' + index).append(
+                                `<button onclick="reOrder(` + "'" + id + "'" + `)" type="button" class="btn btn-primary">재주문</button>`
+                            );
+                        } else {
+                            html +=
+                                `<label id="cash" class="btn btn-outline-primary active">
+                            <input type="radio"> 요식이 결제
+                        </label>`;
+                        }
+
+                        $("#payment-way-" + index).append(
+                            html
+                        )
+
+                        $.each(value.cartitem, function (key, value) {
+                            var menu_name = value.menu__name;
+                            var menu_detail = value.menu__detail;
+                            var menu_img = LOCALHOST_MEDIA_URL + value.menu__img;
+                            var quantity = value.quantity;
+                            var menu_price = value.menu__price;
+                            var subtotal_price = value.subtotal_price;
+                            $("#cart-item-list-" + index).append(
+                                `<li class="list-group-item d-flex justify-content-between lh-condensed">
+                                <div>
+                                    <img src="` + menu_img + `"
+                                        alt="..." width=80px height=80px class="img-thumbnail">
+
+                                    <h6 class="my-0">` + menu_name + ` X ` + quantity + `</h6>
+                                    <small class="text-muted">` + menu_detail + `</small>
+                                </div>
+                                <span class="text-muted">￦ ` + subtotal_price + `원</span>
+                            </li>`
+                            )
+
+                        })
+
+
+                        html = '';
+                        if (is_yosigy_order === null) {
+                            html +=
+                                `<li class="list-group-item d-flex justify-content-between bg-light">
+                                    <div class="text-success">
+                                        <h6 class="my-0">배달 요금</h6>
+                                        <small>요금에 추가됩니다.</small>
+                                    </div>
+                                    <span class="text-success">￦ ` + delivery_charge + `원</span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between bg-light">
+                                    <div class="text-info">
+                                        <h6 class="my-0">gift-card</h6>
+                                        <small id="gift_card_code_`+id+`"></small>
+                                    </div>
+                                    <span class="text-info" id="gift_coupon_price_`+id+`"></span>
+                                </li>
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span>총 가격</span>
+                                    <strong>￦ ` + total_price + `원</strong>
+                                </li>`;
+                        } else {
+                            html +=
+                                `<li class="list-group-item d-flex justify-content-between">
+                            <span>총 가격</span>
+                            <strong>￦ ` + total_price + `원</strong>
+                        </li>`;
+
+                            $("#cart-item-list-" + index).append(
+                                `<li class="list-group-item d-flex justify-content-between lh-condensed">
+                                <div>
+                                    <img src="/media/` + yosigy_menu_img + `"
+                                        alt="` + yosigy_menu_name + `" width=80px height=80px class="img-thumbnail">
+
+                                    <h6 class="my-0">` + yosigy_menu_name + `</h6>
+                                    <small class="text-muted">` + yosigy_menu_detail + `</small>
+                                </div>
+                                <strong class="text-success">요식이 사용</strong>
+                            </li>`
+                            )
+                        }
+                        $("#cart-item-list-" + index).append(
+                            html
+                        );
+
+                        if(value.is_gift_coupon){
+                            var gift_coupon = value.gift_coupon;
+
+                            $('#gift_coupon_price_'+id).html('-￦ '+gift_coupon.coupon_price+'원');
+                            $('#gift_card_code_'+id).html('(gift-card 코드: '+gift_coupon.coupon_code+')')
+                        }
+
+                        $("#order-history-tbody").append(
+                            `<tr>
+                            <td>
+                                <span class="user-subhead">주문번호 : ` + id + `</span>
+                                <img src="` + restaurant_img + `"
+                                    alt="">
+                                <a href="#" class="user-link">` + restaurant_title + `</a>
+
+                            </td>
+                            <td>
+                                ` + created_time + `
+                            </td>
+                            <td class="text-center">
+                                <span class="label label-default">` + status + `</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="label label-default">` + delivery_status + `</span>
+                            </td>
+                            <td class="text-center">
+                                ￦ ` + total_price + `원
+                            </td>
+                            <td id="is-yosigy-payment-` + key + `" class="text-center">    
+                            </td>
+                            <td class="text-center">
+                                <button onclick="testModal(` + index + `)" class="btn btn-primary">
+                                    상세보기
+                                </button>
+
+                            </td>
+                        </tr>`
+                        )
+
+                        if (is_yosigy_order === null) {
+                            $('#payment-way-str' + index).append('* 현장 결제');
+                            $('#is-yosigy-payment-' + key).append('현장 결제');
+                        } else {
+                            $('#is-yosigy-payment-' + key).append('<strong class="text-success">요식이<strong>')
+                        }
+                    });
+                },
+                error: function (data) {
+                    $("#order-history-main").empty()
+                    alert('현재 주문이 없습니다.')
+                    $("#order-history-main").append(
+                        `<h1>` + data.responseJSON['message'] + `</h1>`
+                    )
+                }
+            })
+        });
+    </script>
+    <script src="/static/js/owl.carousel.min.js"></script>
+
+{% endblock %}

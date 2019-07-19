@@ -1,0 +1,241 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block base_head %}
+{% endblock %}
+
+{% block content %}
+<div id="order-main" class="container">
+    <div id="order-info" class="py-5">
+
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 id="cart-item-quantity" class=" align-items-center mb-3">
+                <span> 주문표</span>
+            </h4>
+            </hr>
+            <div id="cart-item-table"></div>
+            <ul id="cart-item-list" class="list-group mb-3">
+            </ul>
+        </div>
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">1. 주문자 정보</h4>
+            <form class="needs-validation" novalidate>
+                <div class="row"></div>
+                <div class="mb-3">
+                    <label for="address">
+                        <h5>주소</h5>
+                    </label>
+                    <div id="address-main">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="address2">
+                        <h5>상세 주소</h5>
+                    </label>
+                    <div id="address-detail">
+
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="address2">
+                        <h5>전화번호</h5>
+                    </label>
+                    <div id="user-phone"></div>
+
+                </div>
+                <hr class="mb-4">
+                <h4 class="mb-3">2. 결제 정보</h4>
+
+                <div class="d-block my-3">
+                    <h5>* 현장결제</h5>
+                </div>
+                <div class="row">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label id="cash" class="btn btn-outline-primary active">
+                            <i class="fas fa-won-sign"></i>
+                            <input type="radio"> 현금 결제
+                        </label>
+                        <label id="card" class="btn btn-outline-primary">
+                            <i class="fas fa-credit-card"></i>
+                            <input type="radio"> 카드 결제
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="mb-4">
+                <h4 class="mb-3">3. 할인 방법 선택</h4>
+                <div class="row card mb-3">
+                  <div class="card-header">
+                    <p class="card-text">
+                        <label><strong>Gift Card</strong></label>
+                        <span class="badge badge-pill badge-primary">
+                          보유 card <span class="badge badge-pill badge-light" id="coupon_num"></span>
+                        </span>
+
+                        <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+
+                          <div class="btn-group nav-item dropdown">
+                            <button class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#"
+                                    id="coupon_dropdown" role="button" aria-haspopup="true" aria-expanded="false"></button>
+                            <div class="dropdown-menu" x-placement="bottom-start" id="available_card_list"
+                                 style="position: absolute; will-change: transform; top: 0px; left: 0px; transform: translate3d(0px, 40px, 0px);">
+                            </div>
+                          </div>
+                          <div id="selected_coupon" class="btn btn-outline-secondary bg-white active"></div>
+                          <button type="button" class="btn btn-primary" onclick="cancel_coupon()">취소</button>
+                        </div>
+                    </p>
+                  </div>
+
+                </div>
+
+               <hr class="mb-4">
+
+                <div class="card border-danger mb-3">
+                    <div class=" card-header">
+                        <h4>주의사항</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">* 주문 후 음식 조리가 시작되면 주문을 취소할 수 없습니다.</p>
+                        <p class="card-text">* 주문 접수 시 배달 소요시간이 안내됩니다.</p>
+                    </div>
+                </div>
+            </form>
+            <div id="order-button">
+
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="/static/js/coupon.js"></script>
+<script>
+    $(document).ready(function () {
+        $.ajax({
+            url: '{% url "order_api:order_create_detail" %}',
+            method: "GET",
+            success: function (data) {
+                var cart_id = data.cart.cart_id
+
+                //유저 정보
+                var user_id = data.user.id
+                var user_name = data.user.name
+                var address = data.user.address
+                var address_detail = data.user.address_detail
+                var phone = data.user.phone
+
+                $('#order-info').append(
+                    `<h1> <i class="fas fa-credit-card"></i> ` + user_name + ` 님의 배달주문 결제 </h1>
+                    <hr>`
+                )
+
+                $('#address-main').append(
+                    `<input type="text" value="` + address + `" class="form-control" id="address"
+                    placeholder="배달 받으실 주소를 적어주세요." required>`
+                )
+
+                $('#address-detail').append(
+                    `<input type="text" value="` + address_detail + `" class="form-control" id="address2" placeholder="주문자의 상세주소를 적어주세요.">`
+                )
+
+                $('#user-phone').append(
+                    `<input type="text" value="{{request.user.phone}}" class="form-control" id="phone"
+                    placeholder="주문자의 전화번호를 적어주세요.">`
+                )
+
+                //레스토랑 정보
+                var restaurant_id = data.restaurant.id
+                var restaurant_title = data.restaurant.title
+                var min_order_price = data.restaurant.min_order_price
+                var delivery_charge = data.restaurant.delivery_charge
+                $('#cart-item-table').append(
+                    `
+                    <hr>
+                    <h5> `+ restaurant_title + ` </h5>
+                    <span class="badge badge-primary">최소 주문 금액 : `+ min_order_price + `</span>
+                    <hr>
+                    `
+                )
+
+                //메뉴 정보
+                $.each(data.restaurant.menu, function (key, value) {
+                    var menu_key = key
+                    var menu_id = value.id
+                    var menu_name = value.name;
+                    var menu_description = value.description;
+                    var menu_price = value.price;
+                    var menu_quantity = value.quantity;
+                    var menu_subtotal = value.subtotal;
+                    var menu_image = value.img;
+                    $("#cart-item-list").append(
+                        `<li class="list-group-item d-flex justify-content-between lh-condensed">
+                            <div>
+                                <img src="`+ menu_image + `" alt="..." width=80px height=80px class="img-thumbnail">
+                                
+                                    <h6 class="my-0">`+ menu_name + ` X ` + menu_quantity + `</h6>
+                                    <small class="text-muted">`+ menu_description + `</small>
+                                
+                            </div>
+                            <span class="text-muted">￦ `+ menu_subtotal + `</span>
+                        </li>`
+                    )
+                })
+                // 주문표 관련 정보
+                var home_url = data.cart.home_url;
+                var total_price = data.cart.total_price;
+                var total_quantity = data.cart.total_quantity;
+                var menus = data.restaurant.menu
+
+                $("#cart-item-list").append(
+                    `<li class="list-group-item d-flex justify-content-between bg-light">
+                        <div class="text-success">
+                            <h6 class="my-0">배달 요금</h6>
+                            <small>요금에 추가됩니다.</small>
+                        </div>
+                        <span class="text-success">￦ `+ delivery_charge + `</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between bg-light" id='gift_card_list'>
+                        <div class="text-info">
+                            <h6 class="my-0">gift-card</h6>
+                        </div>
+                        <span id="gift_card_price" class="text-info"></span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span>총 가격</span>
+                        <strong id="total_price">￦ `+ total_price + `</strong>
+                    </li>
+                    `
+                )
+
+                $("#cart-item-quantity").append(
+                    `<span class="badge badge-primary badge-pill">` + total_quantity + `</span>`
+                )
+
+                $("#order-button").append(
+                    `<button onclick=createOrder(` + "'" + cart_id + "'" + `,` + restaurant_id + `,` + user_id + `,` + total_price + `) class="btn btn-primary btn-lg btn-block">주문하기</button>`
+                )
+
+                set_available_coupon_list(total_price)
+            },
+            error: function (data) {
+
+                $("#order-main").empty()
+                $("#order-main").append(
+                    `<h1>잘못된 접근 입니다.</h1>`
+                )
+
+            }
+        })
+    });
+
+</script>
+{% endblock %}

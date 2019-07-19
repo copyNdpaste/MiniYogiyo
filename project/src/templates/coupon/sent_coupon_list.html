@@ -1,0 +1,19 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    {% include 'coupon/navbar.html' %}
+    {% if user.is_authenticated %}
+        <div id="my_coupon" class="tab-content">
+            <div class="container">
+                <div class="list-group my-4 my-lg-3" id="sent_coupon_list">
+                    <legend>보낸 Gift Card</legend>
+                </div>
+            </div>
+        </div>
+    {%  endif %}
+{% endblock %}
+{% block javascript %}
+    <script>
+        get_sent_coupon_list('{% url 'sent_coupon_list_api' %}')
+    </script>
+{% endblock %}

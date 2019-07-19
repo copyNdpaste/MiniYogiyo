@@ -1,0 +1,47 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <a class="navbar-brand" href="{% url 'home' %}">미니 요기요</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01"
+            aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarColor01">
+        <ul class="navbar-nav mr-auto mr-offset-3">
+        </ul>
+        <div class="mr-5">
+            {% if not user.is_authenticated %}
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "coupon:gift_coupon" %}'">
+                    Gift Card
+                </button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "social:begin" "google-oauth2" %}'">회원가입/로그인
+                </button>
+            {% else %}
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        id="btn_coupon_index">
+                    Gift Card <span class="badge badge-light" id="received_coupon_num"></span>
+                </button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "menu:random_menu_pick_list" %}'">랜덤메뉴Pick
+                </button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "yosigy:list" %}'">요식이
+                </button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "order:order_history" %}'">주문내역
+                </button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "timeline:timeline" %}'">타임라인
+                </button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "accounts:my_page" %}'">My Page
+                </button>
+                <button class="btn btn-primary my-2 my-sm-0" type="submit" onclick="logout()">로그아웃</button>
+                <button class="btn btn-danger my-2 my-sm-0" type="submit"
+                        onclick="location.href='{% url "cart:cart_menu_list" %}'"><i class="fas fa-shopping-cart"></i>
+                    주문표 <span
+                            id="order-menu-count"></span></button>
+            {% endif %}
+        </div>
+    </div>
+</nav>

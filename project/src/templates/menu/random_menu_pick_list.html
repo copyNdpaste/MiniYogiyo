@@ -1,0 +1,93 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block base_head %}
+    <link rel="stylesheet" href="{% static 'css/skin/jajaxloader.css' %}">
+    <link rel="stylesheet" href="{% static 'css/skin/lukehaas/vertical_bars.css' %}">
+{% endblock %}
+
+{% block content %}
+
+
+
+    <div class="container">
+        <div class="loading">Loading&#8230;
+        </div>
+
+        <div id="title-taste"></div>
+        <div class="container center random-menu-pick-margin ">
+
+            <div id="user-tastes" class="row">
+            </div>
+            <div id="random_menu_pick_div" class='col-12 mt-5'>
+                <img id="random_menu_pick_img" src="{% static 'img/random_menu_pick.jpg' %}">
+            </div>
+        </div>
+
+
+        <div class="container">
+            <ul class="nav nav-pills mb-3 nav-fill" id="pills-tab" role="tablist">
+                <li onclick="getRandomMenuPick()" class="nav-item">
+                    <a class="nav-link flex-sm-fill" id="pills-home-tab" data-toggle="pill" href="#pills-home"
+                       role="tab"
+                       aria-controls="pills-home" aria-selected="true">내 취향 기반 랜덤 메뉴</a>
+                </li>
+                <li onclick="getAlreadyEatenRandomMenuPick()" class="nav-item">
+                    <a class="nav-link flex-sm-fill" id="pills-profile-tab" data-toggle="pill" href="#pills-profile"
+                       role="tab" aria-controls="pills-profile" aria-selected="true">내가 먹었던 것 중 랜덤 메뉴</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" id="pills-tabContent">
+            <div class="tab-pane fade col-lg-6 offset-lg-3" id="pills-home" role="tabpanel"
+                 aria-labelledby="pills-home-tab">
+                <div id="random-menu-container" class="card-deck m-10"></div>
+            </div>
+            <div class="tab-pane fade col-lg-5 offset-lg-4" id="pills-profile" role="tabpanel"
+                 aria-labelledby="pills-profile-tab">
+                <div id="random-menu-2-container" class="card-deck m-10"></div>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(document).ready(function () {
+            $('.loading').hide()
+            $.ajax({
+                url: '{% url "menu_api:random_menu_list_api" %}',
+                method: "GET",
+                success: function (data) {
+                    //상단 주문자 정보 부분
+                    var username = data.user.name;
+                    var cart_id = data.user.cart_id
+                    $.each(data.user.tastes, function (key, value) {
+                        var name = value.name;
+                        $("#user-tastes").append(
+                            `<span class="badge badge-pill badge-dark"><h4>` + name + `</h4></span>&nbsp;`
+                        )
+                    });
+                    $("#title-taste").append(
+                        `<h1> ` + username + ` 님의 랜덤 메뉴</h1>
+                    <hr>`
+                    );
+                },
+                error: function (data) {
+                    let errorObj = JSON.parse(String(data.responseText))
+                    if (!errorObj.message) {
+
+                        alert(errorObj.error.discounted_price)
+                    }
+                    alert(errorObj.message)
+                }
+            })
+        });
+    </script>
+
+{% endblock %}

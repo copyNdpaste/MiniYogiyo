@@ -1,0 +1,116 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    <div id="user-addr"></div>
+    <div id="category-lists"></div>
+    <div id="restaurant-lists" class="row"></div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/category/",
+                success: categoryList,
+                dataType: "json",
+            });
+            $.ajax({
+                type: "GET",
+                url: "/api/category/" + {{ category_id }} +"/restaurant/",
+                success: restaurantList,
+                error: restaurantListError,
+                dataType: "json",
+            });
+        });
+
+        function categoryList(data) {
+            var category = JSON.parse(JSON.stringify(data.category_list));
+            if (data.user_addr) {
+                var userAddr = JSON.parse(JSON.stringify(data.user_addr));
+                var addr =
+                    `<ol class="breadcrumb" style="margin-top:20px;">
+                        <li class="breadcrumb-item" style="color:deeppink; margin:auto;">` +
+                            userAddr +
+                        `</li>
+                    </ol>`;
+                $('#user-addr').append(addr);
+            }
+            var html;
+            var categoryList = '';
+            var i;
+
+            category.sort(function (a, b) {
+                return a.pk > b.pk ? 1 : a.pk < b.pk ? -1 : 0
+            });
+
+            for (i = 0; i < category.length; i++) {
+                if (category[i].pk !== 15) {
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/restaurant/">
+                            <button class="btn btn-outline-primary" style="margin:10px;">` +
+                                category[i].name +
+                            `</button>
+                        </a>`
+                } else {
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/menu/">
+                            <button class="btn btn-outline-primary" style="margin:10px;">` +
+                                category[i].name +
+                            `</button>
+                        </a>`
+                }
+            }
+            html = categoryList;
+            $('#category-lists').html(html)
+        }
+
+        function restaurantList(data) {
+            var restaurants = data.restaurant_list;
+            var categoryId = data.category_id;
+            var html;
+            var restaurantList = '';
+            var i;
+            for (i = 0; i < restaurants.length; i++) {
+                restaurantList +=
+                    `<a href="/category/` + categoryId + `/restaurant/` + restaurants[i].pk + `/">
+                            <div class="card border-primary mb-3" style="max-width: 20rem; margin:10px">
+                                <div class="card-body">
+                                    <img src="/media/` + restaurants[i].img + `"
+                                    alt="` + restaurants[i].title + `"
+                                    width=100px; height=100px;>
+                                    <div style="float:right; margin:5px;"><span>` + restaurants[i].title + `</span><br>
+                                    <span>` + restaurants[i].min_order_price + `원 이상 배달</span><br>
+                                    <span>배달예상시간 ` + deliveryTimeCalc(restaurants[i].estimated_delivery_time) + `분</span></div>
+                                </div>
+                            </div>
+                        </a>`
+            }
+            html = restaurantList;
+            $('#restaurant-lists').html(html)
+        }
+
+        function restaurantListError(data) {
+            data = JSON.parse(JSON.stringify(data))
+            $('#restaurant-lists').html(
+                `<div class="alert alert-danger" role="alert">` +
+                data.status + ` ` + data.statusText +
+                `<br>` +
+                data.responseJSON.message +
+                `</div>`
+            )
+        }
+
+        function deliveryTimeCalc(time) {
+            var hour = Number(time.slice(0, 2));
+            var zeroHour = 0;
+            var resultsTime;
+            if (hour === zeroHour) {
+                resultsTime = time.slice(3, 5);
+                return resultsTime;
+            }
+            resultTime = hour * 60 + Number(time.slice(3, 5));
+            return resultTime;
+        }
+    </script>
+{% endblock %}

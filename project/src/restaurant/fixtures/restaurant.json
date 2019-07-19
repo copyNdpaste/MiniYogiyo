@@ -1,0 +1,27 @@
+[
+{
+   "model": "restaurant.restaurant",
+   "pk": 1,
+   "fields": {
+      "created_time": "2019-05-20T07:33:44.785Z",
+      "updated_time": "2019-05-20T07:33:44.791Z",
+      "name": "\uae08\ub8e1",
+      "owner": "\uad8c\ud0dc\ud615",
+      "title": "\uae08\ub8e1 \ud55c\uc591\ub300\uc810",
+      "img": "",
+      "tel": "010-7331-4120",
+      "min_order_price": 15000,
+      "order_way": "\u3141\u3134\u3147\u3139",
+      "origin": "\u3141\u3134\u3147\u3139\u3141\u3134\u3147\u3139",
+      "delivery_charge": 2000,
+      "info": "\u3141\u3134\u3147\u3139\u3141\u3134\u3147\u3139",
+      "type": "\u3141\u3134\u3147\u3139\u3141\u3134\u3147\u3139",
+      "estimated_delivery_time": "03:07:23",
+      "operation_start_hour": "03:07:23",
+      "operation_end_hour": "03:07:23",
+      "category": [
+         2
+      ]
+   }
+}
+]

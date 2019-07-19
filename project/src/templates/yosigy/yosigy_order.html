@@ -1,0 +1,85 @@
+{% extends 'common/base.html' %}
+
+{% load static %}
+
+{% block base_head %}
+{% endblock %}
+
+{% block content %}
+<input id="yosigy-pks" type="hidden" value="{{ yosigy_check_list }}">
+<div id="yosigy-order-main" class="container">
+    <div id="yosigy-order-info" class="py-5"></div>
+
+    <div class="row">
+        <div class="col-md-4 order-md-2 mb-4">
+            <h4 id="yosigy-quantity" class=" align-items-center mb-3">
+                <span>요식이</span>
+            </h4>
+            </hr>
+            <div id="cart-item-table"></div>
+            <ul id="cart-item-list" class="list-group mb-3">
+            </ul>
+        </div>
+        <div class="col-md-8 order-md-1">
+            <h4 class="mb-3">1. 주문자 정보</h4>
+            <form class="needs-validation" novalidate>
+                <div class="row"></div>
+                <div class="mb-3">
+                    <label for="address">
+                        <h5>주소</h5>
+                    </label>
+                    <div id="address-main">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="address2">
+                        <h5>상세 주소</h5>
+                    </label>
+                    <div id="address-detail">
+
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="address2">
+                        <h5>전화번호</h5>
+                    </label>
+                    <div id="user-phone"></div>
+                </div>
+
+                <hr class="mb-4">
+                <h4 class="mb-3">2. 결제 정보</h4>
+
+                <div class="row">
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                        <label id="yosigy-pay" class="btn btn-outline-primary active">
+                            <i class="fas fa-won-sign"></i>
+                            <input type="radio"> 요식이 결제
+                        </label>
+                    </div>
+                </div>
+
+                <hr class="mb-4">
+
+                <div class="card border-danger mb-3">
+                    <div class=" card-header">
+                        <h4>주의사항</h4>
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">* 주문 후 음식 조리가 시작되면 주문을 취소할 수 없습니다.</p>
+                        <p class="card-text">* 주문 접수 시 배달 소요시간이 안내됩니다.</p>
+                    </div>
+                </div>
+            </form>
+            <div id="yosigy-order-button"></div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="/static/js/yosigy_order_list.js"></script>
+<script src="/static/js/yosigy_order.js"></script>
+{% endblock %}

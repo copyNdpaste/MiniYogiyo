@@ -1,0 +1,104 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    <div id="user-addr"></div>
+    <div id="category-lists"></div>
+    <div id="menu-detail" style="margin: 50px auto;"></div>
+{% endblock %}
+
+{% block javascript %}
+    <script>
+        $(function () {
+            $.ajax({
+                type: "GET",
+                url: "/api/category/",
+                success: categoryList,
+                dataType: "json",
+            });
+            $.ajax({
+                type: "GET",
+                url: "/api/category/" + {{ category_id }} +
+                    "/restaurant/" + {{ restaurant_id }} +
+                    "/menu/" + {{ menu_id }} +"/",
+                success: menuDetail,
+                error: menuDetailError,
+                dataType: "json",
+            });
+        });
+
+        function categoryList(data) {
+            var category = JSON.parse(JSON.stringify(data.category_list));
+            if (data.user_addr) {
+                var userAddr = JSON.parse(JSON.stringify(data.user_addr));
+                var addr = `<ol class="breadcrumb" style="margin-top:20px;">
+                                <li class="breadcrumb-item" style="color:deeppink; margin:auto;">` +
+                    userAddr +
+                    `</li>
+                            </ol>`;
+                $('#user-addr').append(addr);
+            }
+            var html;
+            var categoryList = '';
+            var i;
+
+            category.sort(function (a, b) {
+                return a.pk > b.pk ? 1 : a.pk < b.pk ? -1 : 0
+            });
+
+            for (i = 0; i < category.length; i++) {
+                if (category[i].pk !== 15) {
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/restaurant/">
+                        <button class="btn btn-outline-primary" style="margin:10px;">` +
+                        category[i].name +
+                        `</button>
+                    </a>`
+                } else {
+                    categoryList +=
+                        `<a href="/category/` + category[i].pk + `/menu/">
+                        <button class="btn btn-outline-primary" style="margin:10px;">` +
+                        category[i].name +
+                        `</button>
+                    </a>`
+                }
+            }
+            html = categoryList;
+            $('#category-lists').html(html)
+        }
+
+        function menuDetail(data) {
+            var menu = data;
+            var html;
+            var menuDetail = '';
+            var title = '메뉴 상세';
+
+            menuDetail +=
+                `<div class="card mb-4 card w-75" style="margin:20px auto;">
+                    <h3 class="card-header">` + title + `</h3>
+                    <img style="width: 300px; height: 300px; display: block; margin:10px auto;" src="` + menu.img + `" alt="` + menu.name + `">
+                    <div class="card-body">
+                        <h5 class="card-title">` + menu.name + `</h5>
+                        <h7 class="card-subtitle text-muted">` + menu.detail + `</h7>
+                    </div>
+                    <ul class="list-group list-group-flush" style="overflow:auto;">
+                        <li class="list-group-item">가격 ` + menu.price + `원</li>
+                    </ul>
+                    <div class="card-footer text-muted">
+                        <button class="btn btn-primary" onclick="createCartItem('` + menu.cart_id + `',` + menu.id + `)">주문표에 추가</button>
+                    </div>
+                </div>`;
+            html = menuDetail;
+            $('#menu-detail').html(html);
+        }
+
+        function menuDetailError(data) {
+            $('#menu-detail').html(
+                `<div class="alert alert-danger" role="alert">` +
+                data.status + ` ` + data.statusText +
+                `<br>` +
+                data.responseJSON.message +
+                `</div>`
+            );
+        }
+    </script>
+{% endblock %}

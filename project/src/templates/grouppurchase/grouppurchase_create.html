@@ -1,0 +1,70 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <div class="col-md-10 m-5">
+        <h2>공동 구매 생성</h2>
+        <hr>
+        <div id="gp-create-form">
+            <div class="form-group">
+                <div class="m-3 mb-5">
+                    <label for="exampleSelect1">
+
+                        <h3 class="m-2">식당을 선택하세요.</h3>
+
+                    </label>
+                    <select class="form-control form-control-lg" id="exampleSelect1">
+                        <option>굽네 치킨-한양대점</option>
+                        <option>금룡 - 한양대점</option>
+                        <option>교촌 치킨 - 행당점</option>
+                        <option>4</option>
+                        <option>5</option>
+                    </select>
+                </div>
+                <div class="m-3 mb-5">
+                    <label for="exampleSelect1">
+
+                        <h3 class="m-2">메뉴를 선택하세요.</h3>
+
+                    </label>
+                    <select class="form-control form-control-lg" id="exampleSelect1">
+                        <option>굽네 치킨-한양대점</option>
+                        <option>금룡 - 한양대점</option>
+                        <option>교촌 치킨 - 행당점</option>
+                        <option>4</option>
+                        <option>5</option>
+                    </select>
+                </div>
+                <div class="m-3 mb-5">
+                    <label for="exampleSelect1">
+
+                        <h3 class="m-2">목표 인원</h3>
+
+                    </label>
+                    <input type="text" class="form-control form-control-lg" id="exampleInputEmail1"
+                        aria-describedby="emailHelp" placeholder="목표인원을 적으세요.">
+                </div>
+                <div class="m-3 mb-5">
+                    <label for="exampleSelect1">
+
+                        <h3 class="m-2">한줄 공지사항</h3>
+
+                    </label>
+                    <input type="text" class="form-control form-control-lg" id="exampleInputEmail1"
+                        aria-describedby="emailHelp" placeholder="한줄 공지사항을 적으세요.">
+                </div>
+            </div>
+        </div>
+        <div id="gp-create-button">
+            <button class="btn btn-primary btn-lg btn-block">
+                <h3>생성하기</h3>
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script src="/static/js/grouppurchase_create.js"></script>
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends "blog/base.html" %}
+
+{% block content %}
+    {% for post in post_list %}
+        <div>
+            <a href="{% url 'post_detail' post.pk %}">{{ post.text }}</a>
+            승인된 댓글 수 : {{ post.approved_comments.count }}
+            댓글 수 : {{ post.comments.count }}
+        </div>
+    {% endfor %}
+{% endblock %}

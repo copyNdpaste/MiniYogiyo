@@ -1,0 +1,96 @@
+{% extends 'common/base.html' %}
+
+{% block base_head %}
+    <link rel="stylesheet" href="/static/css/owl.carousel.min.css">
+{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+    <ul class="nav nav-tabs nav-pills nav-fill" style="margin-top: 20px;">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#mypage_div">마이페이지</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="yosigy-quantity" data-toggle="tab" href="#yosigy-ticket">요식이</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#subscribed-restaurants-list">구독 레스토랑</a>
+        </li>
+    </ul>
+    <div id="myTabContent" class="tab-content">
+        <div class="tab-pane fade show active" id="mypage_div">
+            <form id="my_page_form">
+              <fieldset>
+                <legend>My Page</legend>
+                <div class="form-group row">
+                  <label for="staticEmail" class="col-sm-2 col-form-label">아이디</label>
+                  <div class="col-sm-10">
+                    <input type="text" readonly="" class="form-control-plaintext" id="username" value="">
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <label for="staticEmail" class="col-sm-2 col-form-label">Email</label>
+                  <div class="col-sm-10">
+                    <input type="text" readonly="" class="form-control-plaintext" id="email" value="">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label class="col-form-label col-form-label-sm" for="inputSmall">전화번호</label>
+                  <input class="form-control form-control-sm" type="text" name="phone"
+                         placeholder="전화번호" id="inputSmall">
+                </div>
+                <div class="form-group">
+                  <label class="col-form-label col-form-label-sm" for="inputSmall">주소</label>
+                  <input class="form-control form-control-sm" type="text" name="address"
+                         maxlength="50" placeholder="주소" id="inputSmall">
+                </div>
+                <div class="form-group">
+                  <label class="col-form-label col-form-label-sm" for="inputSmall">상세주소</label>
+                  <input class="form-control form-control-sm" type="text" name="address_detail"
+                         maxlength="50" placeholder="상세주소" id="inputSmall">
+                </div>
+                <fieldset class="form-group">
+                  <legend>나의 음식 취향은??</legend>
+                  <div id="taste_check">
+                  </div>
+                </fieldset>
+                <button type="button" class="btn btn-primary" onclick="update_form('accounts','my_page')">수정</button>
+              </fieldset>
+            </form>
+        </div>
+
+        <div class="tab-pane fade" id="yosigy-ticket">
+            <ul class="nav nav-tabs nav-pills nav-fill" style="margin-top: 5px;">
+                 <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#not-used-yosigy-ticket">사용가능</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#used-yosigy-ticket">사용됨</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="not-used-or-used">
+            </div>
+            <div class="tab-pane fade show active" id="not-used"></div>
+            <div class="tab-pane fade" id="used"></div>
+        </div>
+
+        <div class="tab-pane fade" id="subscribed-restaurants-list">
+            <div id="subscribed-restaurants" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block javascript %}
+    <script src="/static/js/yosigy_ticket_list.js"></script>
+    <script type="text/javascript">
+        var tab_num = {{ tab_num }};
+        if(tab_num) {
+            tabNum = {{ tab_num }};
+            if (tabNum === 2) {
+                $('#yosigy-quantity').click();
+            }
+        }
+    </script>
+    <script src="/static/js/owl.carousel.min.js"></script>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'common/base.html' %}
+
+{% block content %}
+    {% include 'coupon/navbar.html' %}
+    <div id="my_coupon" class="tab-content">
+        <div class="container">
+            <div class="list-group my-4 my-lg-3" id="coupon_index">
+                <legend id="coupon_title"></legend>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block javascript %}
+    <script>
+        set_unchecked_coupons()
+    </script>
+{% endblock %}
