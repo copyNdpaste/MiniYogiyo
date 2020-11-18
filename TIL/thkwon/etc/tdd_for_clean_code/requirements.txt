@@ -2,5 +2,5 @@ Django==2.1.7
 pytz==2018.9
 selenium==3.141.0
 urllib3==1.24.1
-notebook==5.7.6
+notebook==6.1.5
 django-extensions==2.1.6
