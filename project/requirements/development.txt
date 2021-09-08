@@ -6,6 +6,6 @@ django-debug-toolbar==1.11
 social-auth-app-django==3.1.0
 coverage==4.5.3
 flake8
-Pillow==6.0.0
+Pillow==8.3.2
 django-bulk-update==2.2.0
 django-background-tasks==1.2.0
